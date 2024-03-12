@@ -1,18 +1,32 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(BaseScannerView))]
+[RequireComponent(typeof(BaseStorageView))]
+[RequireComponent(typeof(BaseBotsHandler))]
 public class BaseView : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    private BaseScannerView _scannerView;
+    private BaseStorageView _storageView;
+    private BaseBotsHandler _botsHandler;
+
+    private void Awake()
     {
-        
+        _scannerView = GetComponent<BaseScannerView>();
+        _storageView = GetComponent<BaseStorageView>();
+        _botsHandler = GetComponent<BaseBotsHandler>();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void Init(
+        IInputsProvider inputsProvider,
+        ResourcesPool resourcesPool,
+        ResourcesProvider baseScannerResourceProvider,
+        StorageModel resourcesStorageModel,
+        StorageModel botsStorageModel,
+        BotFactory botFactory)
     {
-        
+        _scannerView.Init(inputsProvider, resourcesPool, baseScannerResourceProvider);
+        _storageView.Init(resourcesStorageModel, botsStorageModel);
+        _botsHandler
+            .Init(botsStorageModel, baseScannerResourceProvider, botFactory, transform);
     }
 }

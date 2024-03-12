@@ -4,12 +4,12 @@ public class BotBaseComingState : IState
 {
     private readonly BotInteractHandler _interactHandler;
     private readonly BotAIBehaviour _botBehaviour;
-    private readonly Vector3 _botBase;
+    private readonly Transform _botBase;
 
     public BotBaseComingState(
         BotInteractHandler interactHandler,
         BotAIBehaviour botBehaviour,
-        Vector3 botBase)
+        Transform botBase)
     {
         _interactHandler = interactHandler;
         _botBehaviour = botBehaviour;
@@ -19,7 +19,8 @@ public class BotBaseComingState : IState
     public void OnEnter()
     {
         _interactHandler.SetState(BotInteractState.ToBase);
-        _botBehaviour.SetDestination(_botBase);
+        _interactHandler.SetTarget(_botBase);
+        _botBehaviour.SetDestination(_botBase.position);
     }
 
     public void OnExit()

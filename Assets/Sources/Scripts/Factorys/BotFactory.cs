@@ -1,18 +1,17 @@
 using UnityEngine;
 
-public class BotFactory : MonoBehaviour
+public class BotFactory
 {
     private readonly BotView _prefab = Resources.Load<BotView>(Path.Bot);
 
     public BotView Create(
         Vector3 position,
-        CoalView[] targets,
-        Vector3 botBasePosition)
+        CoalView target,
+        Transform botBase)
     {
-        BotView botView = Instantiate(_prefab, position, Quaternion.identity);
-
-        ResourcesProvider provider = new(targets);
-        botView.Init(provider, botBasePosition);
+        BotView botView = Object.Instantiate(_prefab, position, Quaternion.identity);
+        StorageModel storageModel = new();
+        botView.Init(storageModel, target, botBase);
 
         return botView;
     }

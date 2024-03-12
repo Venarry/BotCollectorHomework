@@ -14,8 +14,8 @@ public class CoalView : MonoBehaviour
 
     public void Destroy()
     {
-        Destroyed.Invoke(this);
         _resourcesPool.Remove(this);
+        Destroyed?.Invoke(this);
         Destroy(gameObject);
     }
 }

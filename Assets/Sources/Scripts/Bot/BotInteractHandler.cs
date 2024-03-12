@@ -5,7 +5,7 @@ public class BotInteractHandler : MonoBehaviour
 {
     private BotInteractState _currentBotState;
     private StorageModel _storageModel;
-    private CoalView _target;
+    private Transform _target;
 
     public event Action ResourceCollected;
 
@@ -14,7 +14,7 @@ public class BotInteractHandler : MonoBehaviour
         _storageModel = storageModel;
     }
 
-    public void SetResourceTarget(CoalView target)
+    public void SetTarget(Transform target)
     {
         _target = target;
     }
@@ -29,7 +29,8 @@ public class BotInteractHandler : MonoBehaviour
         switch (_currentBotState)
         {
             case BotInteractState.ToResources:
-                if(other.TryGetComponent(out CoalView coal) && coal == _target)
+                if (other.TryGetComponent(out CoalView coal) &&
+                    coal.transform == _target)
                 {
                     _storageModel.Add();
                     coal.Destroy();
@@ -38,10 +39,16 @@ public class BotInteractHandler : MonoBehaviour
                 break;
 
             case BotInteractState.ToBase:
-                if (other.TryGetComponent(out BaseStorageView baseStorageView))
+                if (other.TryGetComponent(out BaseStorageView baseStorageView) &&
+                    baseStorageView.transform == _target)
                 {
-                    baseStorageView.AddResource();
-                    baseStorageView.AddBot();
+                    if(_storageModel.Count > 0)
+                    {
+                        baseStorageView.AddResources(_storageModel.Count);
+                        _storageModel.TryRemove(_storageModel.Count);
+                    }
+                    Debug.Log("bot coming");
+                    baseStorageView.AddBots();
                     Destroy(gameObject);
                 }
                 break;

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(StateMachine))]
@@ -11,18 +9,22 @@ public class BotView : MonoBehaviour
     private StateMachine _stateMachine;
     private BotInteractHandler _interactHandler;
     private BotAIBehaviour _botAIBehaviour;
+    private BotStorageView _botStorageView;
 
     private void Awake()
     {
         _stateMachine = GetComponent<StateMachine>();
         _interactHandler = GetComponent<BotInteractHandler>();
         _botAIBehaviour = GetComponent<BotAIBehaviour>();
+        _botStorageView = GetComponent<BotStorageView>();
     }
 
-    public void Init(ResourcesProvider resourcesProvider, Vector3 botBase)
+    public void Init(StorageModel storageModel, CoalView coalTarget, Transform botBase)
     {
+        _interactHandler.Init(storageModel);
+        _botStorageView.Init(storageModel);
         BotResourcesCollectState botResourcesCollectState = 
-            new(_interactHandler, _botAIBehaviour, resourcesProvider, _stateMachine);
+            new(_interactHandler, _botAIBehaviour, coalTarget, _stateMachine);
 
         BotBaseComingState botBaseComingState =
             new(_interactHandler, _botAIBehaviour, botBase);
