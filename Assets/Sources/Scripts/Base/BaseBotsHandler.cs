@@ -6,13 +6,13 @@ public class BaseBotsHandler : MonoBehaviour
     [SerializeField] private Transform _botSpawnPoint;
 
     private StorageModel _botsStorageModel;
-    private ResourcesProvider _scannedResourcesProvider;
+    private ScannedResourcesProvider _scannedResourcesProvider;
     private BotFactory _botFactory;
     private Transform _base;
 
     public void Init(
         StorageModel botsStorageModel,
-        ResourcesProvider resourcesProvider,
+        ScannedResourcesProvider resourcesProvider,
         BotFactory botFactory,
         Transform botBase)
     {
@@ -22,13 +22,13 @@ public class BaseBotsHandler : MonoBehaviour
         _base = botBase;
 
         _botsStorageModel.Added += TrySendBots;
-        _scannedResourcesProvider.Added += OnResourceAdd;
+        _scannedResourcesProvider.ScannedCoalAdded += OnResourceAdd;
     }
 
     private void OnDestroy()
     {
         _botsStorageModel.Added -= TrySendBots;
-        _scannedResourcesProvider.Added -= OnResourceAdd;
+        _scannedResourcesProvider.ScannedCoalAdded -= OnResourceAdd;
     }
 
     private void OnResourceAdd(CoalView _)
@@ -40,7 +40,6 @@ public class BaseBotsHandler : MonoBehaviour
     {
         int availableShipments = Math
             .Min(_botsStorageModel.Count, _scannedResourcesProvider.CoalsCount);
-        Debug.Log($"TrySend {availableShipments}");
 
         if (availableShipments == 0)
         {

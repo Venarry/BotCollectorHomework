@@ -47,7 +47,7 @@ public class BotInteractHandler : MonoBehaviour
                         baseStorageView.AddResources(_storageModel.Count);
                         _storageModel.TryRemove(_storageModel.Count);
                     }
-                    Debug.Log("bot coming");
+
                     baseStorageView.AddBots();
                     Destroy(gameObject);
                 }

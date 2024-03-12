@@ -1,39 +1,42 @@
-using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class BaseScannerView : MonoBehaviour
 {
     private IInputsProvider _inputsProvider;
     private ResourcesPool _resourcesPool;
-    private ResourcesProvider _resourcesProvider;
+    private ScannedResourcesProvider _resourcesProvider;
     private readonly Dictionary<CoalView, GameObject> _scannedResources = new();
+    private readonly Dictionary<CoalView, GameObject> _collectingResources = new();
 
     public void Init(
         IInputsProvider inputsProvider,
         ResourcesPool resourcesPool,
-        ResourcesProvider resourcesProvider)
+        ScannedResourcesProvider resourcesProvider)
     {
         _inputsProvider = inputsProvider;
         _resourcesPool = resourcesPool;
         _resourcesProvider = resourcesProvider;
 
-        _resourcesProvider.Added += OnResourceAdd;
-        _resourcesProvider.Removed += OnResourceDestroy;
+        _resourcesProvider.ScannedCoalAdded += OnScannedCoalAdd;
+        _resourcesProvider.ScannedCoalRemoved += OnScannedCoalRemove;
+        _resourcesProvider.CollectingCoalAdded += OnCollectingCoalAdd;
+        _resourcesProvider.CollectingCoalDestroyed += OnCollectingCoalDestroy;
     }
+
 
     private void OnDestroy()
     {
-        _resourcesProvider.Added -= OnResourceAdd;
-        _resourcesProvider.Removed -= OnResourceDestroy;
+        _resourcesProvider.ScannedCoalAdded -= OnScannedCoalAdd;
+        _resourcesProvider.ScannedCoalRemoved -= OnScannedCoalRemove;
+        _resourcesProvider.CollectingCoalAdded -= OnCollectingCoalAdd;
+        _resourcesProvider.CollectingCoalDestroyed -= OnCollectingCoalDestroy;
     }
 
     private void Update()
     {
         if (_inputsProvider.IsPressedScan)
         {
-            //ClearScannedResources();
             _resourcesProvider.Clear();
             CoalView[] scennedResources = _resourcesPool.GetAll();
 
@@ -44,31 +47,33 @@ public class BaseScannerView : MonoBehaviour
         }
     }
 
-    private void OnResourceAdd(CoalView coalView)
+    private void OnScannedCoalAdd(CoalView coal)
     {
         GameObject scanMarkPrefab = Resources.Load<GameObject>(Path.ScanMark);
         GameObject scanMark = Instantiate(
-            scanMarkPrefab, coalView.transform.position, Quaternion.identity);
+            scanMarkPrefab, coal.transform.position, Quaternion.identity);
 
-        _scannedResources.Add(coalView, scanMark);
+        _scannedResources.Add(coal, scanMark);
     }
 
-    private void OnResourceDestroy(CoalView coal)
+    private void OnScannedCoalRemove(CoalView coal)
     {
         Destroy(_scannedResources[coal]);
         _scannedResources.Remove(coal);
     }
 
-    private void ClearScannedResources()
+    private void OnCollectingCoalAdd(CoalView coal)
     {
-        /*foreach (KeyValuePair<CoalView, GameObject> resource in _scannedResources)
-        {
-            resource.Key.Destroyed -= OnResourceDestroy;
-            Destroy(resource.Value);
-        }
+        GameObject collectMarkPrefab = Resources.Load<GameObject>(Path.CollectMark);
+        GameObject collectMark = Instantiate(
+            collectMarkPrefab, coal.transform.position, Quaternion.identity);
 
-        _scannedResources.Clear();*/
+        _collectingResources.Add(coal, collectMark);
+    }
 
-        _resourcesProvider.Clear();
+    private void OnCollectingCoalDestroy(CoalView coal)
+    {
+        Destroy(_collectingResources[coal]);
+        _collectingResources.Remove(coal);
     }
 }

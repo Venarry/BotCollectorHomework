@@ -16,7 +16,7 @@ public class BaseFactory
 
         StorageModel resourcesStorageModel = new(baseResourcesValue);
         StorageModel botsStorageModel = new(baseBotsCount);
-        ResourcesProvider resourcesProvider = new();
+        ScannedResourcesProvider resourcesProvider = new();
 
         baseView.Init(
             inputsProvider,

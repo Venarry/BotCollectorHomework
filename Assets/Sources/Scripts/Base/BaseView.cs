@@ -19,7 +19,7 @@ public class BaseView : MonoBehaviour
     public void Init(
         IInputsProvider inputsProvider,
         ResourcesPool resourcesPool,
-        ResourcesProvider baseScannerResourceProvider,
+        ScannedResourcesProvider baseScannerResourceProvider,
         StorageModel resourcesStorageModel,
         StorageModel botsStorageModel,
         BotFactory botFactory)
