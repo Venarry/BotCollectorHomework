@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class BaseFactory
 {
-    private readonly BaseCompositeRoot _prefab = Resources.Load<BaseCompositeRoot>(Path.Base);
+    private readonly BaseView _prefab = Resources.Load<BaseView>(Path.Base);
 
-    public BaseCompositeRoot Create(
+    public BaseView Create(
         Vector3 position,
         IInputsProvider inputsProvider,
         ResourcesPool resourcesPool,
@@ -12,13 +12,13 @@ public class BaseFactory
         int baseResourcesValue,
         int baseBotsCount)
     {
-        BaseCompositeRoot baseCompositeRoot = Object.Instantiate(_prefab, position, Quaternion.identity);
+        BaseView baseView = Object.Instantiate(_prefab, position, Quaternion.identity);
 
         StorageModel resourcesStorageModel = new(baseResourcesValue);
         StorageModel botsStorageModel = new(baseBotsCount);
         ScannedResourcesProvider resourcesProvider = new();
 
-        baseCompositeRoot.Init(
+        baseView.Init(
             inputsProvider,
             resourcesPool,
             resourcesProvider,
@@ -26,6 +26,6 @@ public class BaseFactory
             botsStorageModel,
             botFactory);
 
-        return baseCompositeRoot;
+        return baseView;
     }
 }

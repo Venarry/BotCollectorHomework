@@ -3,7 +3,7 @@ using UnityEngine;
 [RequireComponent(typeof(BaseScannerView))]
 [RequireComponent(typeof(BaseStorageView))]
 [RequireComponent(typeof(BaseBotsHandler))]
-public class BaseCompositeRoot : MonoBehaviour
+public class BaseView : MonoBehaviour
 {
     private BaseScannerView _scannerView;
     private BaseStorageView _storageView;
