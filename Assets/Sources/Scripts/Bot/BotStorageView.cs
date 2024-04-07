@@ -1,14 +1,19 @@
 using System;
+using TMPro;
 using UnityEngine;
 
 public class BotStorageView : MonoBehaviour
 {
+    [SerializeField] private TMP_Text _resourcesCountLabel;
+
     private StorageModel _storageModel;
 
     public void Init(StorageModel storageModel)
     {
         _storageModel = storageModel;
         _storageModel.Added += OnResourcesAdded;
+
+        _resourcesCountLabel.text = _storageModel.Count.ToString();
     }
 
     private void OnDestroy()
@@ -18,6 +23,6 @@ public class BotStorageView : MonoBehaviour
 
     private void OnResourcesAdded()
     {
-        Debug.Log("resources was collect by bot");
+        _resourcesCountLabel.text = _storageModel.Count.ToString();
     }
 }

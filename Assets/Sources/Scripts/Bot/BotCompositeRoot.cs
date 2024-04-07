@@ -4,7 +4,7 @@ using UnityEngine;
 [RequireComponent(typeof(BotInteractHandler))]
 [RequireComponent(typeof(BotAIBehaviour))]
 [RequireComponent(typeof(BotStorageView))]
-public class BotView : MonoBehaviour
+public class BotCompositeRoot : MonoBehaviour
 {
     private StateMachine _stateMachine;
     private BotInteractHandler _interactHandler;
