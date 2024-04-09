@@ -6,12 +6,13 @@ public class BotFactory
 
     public BotView Create(
         Vector3 position,
-        CoalView target,
-        Transform botBase)
+        Transform botBase,
+        int startResources = 0)
     {
         BotView bot = Object.Instantiate(_prefab, position, Quaternion.identity);
         StorageModel storageModel = new();
-        bot.Init(storageModel, target, botBase);
+        storageModel.Add(startResources);
+        bot.Init(storageModel, botBase);
 
         return bot;
     }

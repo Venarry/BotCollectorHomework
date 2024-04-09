@@ -1,33 +1,35 @@
-using System;
-using UnityEngine;
-
 public class BotResourcesCollectState : IState
 {
     private readonly BotInteractHandler _interactHandler;
     private readonly BotAIBehaviour _botBehaviour;
-    private readonly CoalView _target;
     private readonly IStateSwitcher _stateSwitcher;
+
+    private ITarget _target;
 
     public BotResourcesCollectState(
         BotInteractHandler interactHandler,
         BotAIBehaviour botBehaviour,
-        CoalView target,
         IStateSwitcher stateSwitcher)
     {
         _interactHandler = interactHandler;
         _botBehaviour = botBehaviour;
-        _target = target;
         _stateSwitcher = stateSwitcher;
+    }
+
+    public void SetTarget(ITarget target)
+    {
+        _target = target;
+        _interactHandler.SetState(BotInteractState.ToResources);
+        _interactHandler.SetTarget(_target.Transform);
+
+        _botBehaviour.SetDestination(_target.Transform.position);
+        _target.Destroyed += OnResourceDestroy;
+        _interactHandler.ResourceCollected += OnResourceCollect;
     }
 
     public void OnEnter()
     {
-        _interactHandler.SetState(BotInteractState.ToResources);
-        _interactHandler.SetTarget(_target.transform);
-
-        _botBehaviour.SetDestination(_target.transform.position);
-        _target.Destroyed += OnResourceDestroy;
-        _interactHandler.ResourceCollected += OnResourceCollect;
+        
     }
 
     public void OnExit()
@@ -40,7 +42,7 @@ public class BotResourcesCollectState : IState
     {
     }
 
-    private void OnResourceDestroy(CoalView _)
+    private void OnResourceDestroy(ITarget _)
     {
         OnResourceCollect();
     }

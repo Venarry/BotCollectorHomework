@@ -10,6 +10,8 @@ public class BotView : MonoBehaviour
     private BotInteractHandler _interactHandler;
     private BotAIBehaviour _botAIBehaviour;
     private BotStorageView _botStorageView;
+    private BotResourcesCollectState _botResourcesCollectState;
+    //private BotBuil _botResourcesCollectState;
 
     private void Awake()
     {
@@ -19,18 +21,29 @@ public class BotView : MonoBehaviour
         _botStorageView = GetComponent<BotStorageView>();
     }
 
-    public void Init(StorageModel storageModel, CoalView coalTarget, Transform botBase)
+    public void Init(StorageModel storageModel, Transform botBase)
     {
         _interactHandler.Init(storageModel);
         _botStorageView.Init(storageModel);
-        BotResourcesCollectState botResourcesCollectState = 
-            new(_interactHandler, _botAIBehaviour, coalTarget, _stateMachine);
+
+        _botResourcesCollectState = 
+            new(_interactHandler, _botAIBehaviour, _stateMachine);
 
         BotBaseComingState botBaseComingState =
             new(_interactHandler, _botAIBehaviour, botBase);
 
-        _stateMachine.Register(botResourcesCollectState);
+        _stateMachine.Register(_botResourcesCollectState);
         _stateMachine.Register(botBaseComingState);
+    }
+
+    public void GoToResource(ITarget target)
+    {
+        _botResourcesCollectState.SetTarget(target);
         _stateMachine.Switch<BotResourcesCollectState>();
+    }
+
+    public void GoToFlag(ITarget target)
+    {
+
     }
 }

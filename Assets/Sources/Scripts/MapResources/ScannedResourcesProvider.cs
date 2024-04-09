@@ -3,73 +3,73 @@ using System.Collections.Generic;
 
 public class ScannedResourcesProvider
 {
-    private readonly List<CoalView> _scannedCoals = new();
-    private readonly List<CoalView> _collectingCoals = new();
+    private readonly List<ITarget> _scannedResources = new();
+    private readonly List<ITarget> _collectingResources = new();
 
-    public int CoalsCount => _scannedCoals.Count;
+    public int CoalsCount => _scannedResources.Count;
 
-    public event Action<CoalView> ScannedCoalAdded;
-    public event Action<CoalView> ScannedCoalRemoved;
+    public event Action<ITarget> ScannedResourceAdded;
+    public event Action<ITarget> ScannedResourceRemoved;
 
-    public event Action<CoalView> CollectingCoalAdded;
-    public event Action<CoalView> CollectingCoalDestroyed;
+    public event Action<ITarget> CollectingResourceAdded;
+    public event Action<ITarget> CollectingResourceDestroyed;
 
     public ScannedResourcesProvider()
     {
     }
 
-    public void Add(CoalView coal)
+    public void Add(ITarget resource)
     {
-        if (_scannedCoals.Contains(coal) || _collectingCoals.Contains(coal))
+        if (_scannedResources.Contains(resource) || _collectingResources.Contains(resource))
             return;
 
-        _scannedCoals.Add(coal);
-        coal.Destroyed += OnScannedResourceDestroy;
-        ScannedCoalAdded?.Invoke(coal);
+        _scannedResources.Add(resource);
+        resource.Destroyed += OnScannedResourceDestroy;
+        ScannedResourceAdded?.Invoke(resource);
     }
 
-    public bool TryTake(out CoalView coal)
+    public bool TryTake(out ITarget resource)
     {
-        coal = null;
+        resource = null;
 
-        if (_scannedCoals.Count == 0)
+        if (_scannedResources.Count == 0)
             return false;
 
-        coal = _scannedCoals[0];
-        coal.Destroyed -= OnScannedResourceDestroy;
-        ScannedCoalRemoved?.Invoke(coal);
-        _scannedCoals.RemoveAt(0);
+        resource = _scannedResources[0];
+        resource.Destroyed -= OnScannedResourceDestroy;
+        ScannedResourceRemoved?.Invoke(resource);
+        _scannedResources.RemoveAt(0);
 
-        _collectingCoals.Add(coal);
-        CollectingCoalAdded?.Invoke(coal);
-        coal.Destroyed += OnCollectingResourceDestroy;
+        _collectingResources.Add(resource);
+        CollectingResourceAdded?.Invoke(resource);
+        resource.Destroyed += OnCollectingResourceDestroy;
 
         return true;
     }
 
     public void Clear()
     {
-        foreach (CoalView coal in _scannedCoals)
+        foreach (CoalView coal in _scannedResources)
         {
             coal.Destroyed -= OnScannedResourceDestroy;
-            ScannedCoalRemoved?.Invoke(coal);
+            ScannedResourceRemoved?.Invoke(coal);
         }
 
-        _scannedCoals.Clear();
+        _scannedResources.Clear();
     }
 
-    private void OnScannedResourceDestroy(CoalView coal)
+    private void OnScannedResourceDestroy(ITarget resource)
     {
-        coal.Destroyed -= OnScannedResourceDestroy;
-        ScannedCoalRemoved?.Invoke(coal);
-        _scannedCoals.Remove(coal);
+        resource.Destroyed -= OnScannedResourceDestroy;
+        ScannedResourceRemoved?.Invoke(resource);
+        _scannedResources.Remove(resource);
     }
 
 
-    private void OnCollectingResourceDestroy(CoalView coal)
+    private void OnCollectingResourceDestroy(ITarget resource)
     {
-        coal.Destroyed -= OnCollectingResourceDestroy;
-        _collectingCoals.Remove(coal);
-        CollectingCoalDestroyed?.Invoke(coal);
+        resource.Destroyed -= OnCollectingResourceDestroy;
+        _collectingResources.Remove(resource);
+        CollectingResourceDestroyed?.Invoke(resource);
     }
 }

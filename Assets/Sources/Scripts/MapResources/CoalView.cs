@@ -1,10 +1,12 @@
 using System;
 using UnityEngine;
 
-public class CoalView : MonoBehaviour
+public class CoalView : MonoBehaviour, ITarget
 {
-    public event Action<CoalView> Destroyed;
+    public event Action<ITarget> Destroyed;
     private ResourcesPool _resourcesPool;
+
+    public Transform Transform => transform;
 
     public void Init(ResourcesPool resourcesPool)
     {

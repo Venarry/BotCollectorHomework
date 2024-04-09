@@ -1,42 +1,37 @@
 using System;
 using UnityEngine;
 
-public class BaseBotsHandler : MonoBehaviour
+public class BaseBotsHandler
 {
-    [SerializeField] private Transform _botSpawnPoint;
+    private readonly Transform _base;
+    private readonly Transform _botsSpawnPoint;
+    private readonly StorageModel _botsStorageModel;
+    private readonly StorageModel _resourcesStorageModel;
+    private readonly ScannedResourcesProvider _scannedResourcesProvider;
+    private readonly BotFactory _botFactory;
 
-    private StorageModel _botsStorageModel;
-    private ScannedResourcesProvider _scannedResourcesProvider;
-    private BotFactory _botFactory;
-    private Transform _base;
-
-    public void Init(
+    public BaseBotsHandler(
+        Transform thisBase,
+        Transform botsSpawnPoint,
         StorageModel botsStorageModel,
-        ScannedResourcesProvider resourcesProvider,
-        BotFactory botFactory,
-        Transform botBase)
+        StorageModel resourcesStorageModel,
+        ScannedResourcesProvider scannedResourcesProvider,
+        BotFactory botFactory)
     {
+        _base = thisBase;
+        _botsSpawnPoint = botsSpawnPoint;
         _botsStorageModel = botsStorageModel;
-        _scannedResourcesProvider = resourcesProvider;
+        _resourcesStorageModel = resourcesStorageModel;
+        _scannedResourcesProvider = scannedResourcesProvider;
         _botFactory = botFactory;
-        _base = botBase;
-
-        _botsStorageModel.Added += TrySendBots;
-        _scannedResourcesProvider.ScannedCoalAdded += OnResourceAdd;
     }
 
-    private void OnDestroy()
+    public void AddNewBot()
     {
-        _botsStorageModel.Added -= TrySendBots;
-        _scannedResourcesProvider.ScannedCoalAdded -= OnResourceAdd;
+        _botsStorageModel.Add();
     }
 
-    private void OnResourceAdd(CoalView _)
-    {
-        TrySendBots();
-    }
-
-    private void TrySendBots()
+    public void TrySendBotsToResource()
     {
         int availableShipments = Math
             .Min(_botsStorageModel.Count, _scannedResourcesProvider.CoalsCount);
@@ -49,8 +44,23 @@ public class BaseBotsHandler : MonoBehaviour
         for (int i = 0; i < availableShipments; i++)
         {
             _botsStorageModel.TryRemove();
-            _scannedResourcesProvider.TryTake(out CoalView coal);
-            _botFactory.Create(_botSpawnPoint.position, coal, _base);
+            _scannedResourcesProvider.TryTake(out ITarget resource);
+            BotView bot = _botFactory.Create(_botsSpawnPoint.position, _base);
+            bot.GoToResource(resource);
+        }
+    }
+
+    public void TrySendBotToBuildBase(int resourcesForBuild, ITarget flag)
+    {
+        if (_resourcesStorageModel.Count >= resourcesForBuild &&
+            _botsStorageModel.Count > 0)
+        {
+            _botsStorageModel.TryRemove();
+            _resourcesStorageModel.TryRemove(resourcesForBuild);
+
+            BotView bot = _botFactory
+                .Create(_botsSpawnPoint.position, _base, startResources: resourcesForBuild);
+            bot.GoToFlag(flag);
         }
     }
 }
