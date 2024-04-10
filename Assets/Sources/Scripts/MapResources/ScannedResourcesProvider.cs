@@ -14,10 +14,6 @@ public class ScannedResourcesProvider
     public event Action<ITarget> CollectingResourceAdded;
     public event Action<ITarget> CollectingResourceDestroyed;
 
-    public ScannedResourcesProvider()
-    {
-    }
-
     public void Add(ITarget resource)
     {
         if (_scannedResources.Contains(resource) || _collectingResources.Contains(resource))
