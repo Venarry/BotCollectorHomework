@@ -8,6 +8,7 @@ public class BotInteractHandler : MonoBehaviour
     private Transform _target;
 
     public event Action ResourceCollected;
+    public event Action Reached;
 
     public void Init(StorageModel storageModel)
     {
@@ -26,7 +27,11 @@ public class BotInteractHandler : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        switch (_currentBotState)
+        if(other.transform == _target.transform)
+        {
+            Reached?.Invoke();
+        }
+        /*switch (_currentBotState)
         {
             case BotInteractState.ToResources:
                 if (other.TryGetComponent(out CoalView coal) &&
@@ -52,6 +57,6 @@ public class BotInteractHandler : MonoBehaviour
                     Destroy(gameObject);
                 }
                 break;
-        }
+        }*/
     }
 }

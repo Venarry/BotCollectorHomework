@@ -5,6 +5,8 @@ using UnityEngine.AI;
 public class BotAIBehaviour : MonoBehaviour
 {
     private NavMeshAgent _agent;
+    
+    public Vector3 Position => transform.position;
 
     private void Awake()
     {

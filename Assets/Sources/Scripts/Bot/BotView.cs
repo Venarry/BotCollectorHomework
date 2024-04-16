@@ -27,7 +27,7 @@ public class BotView : MonoBehaviour
         _botStorageView.Init(storageModel);
 
         _botResourcesCollectState = 
-            new(_interactHandler, _botAIBehaviour, _stateMachine);
+            new(_interactHandler, _botAIBehaviour, storageModel, _stateMachine);
 
         BotBaseComingState botBaseComingState =
             new(_interactHandler, _botAIBehaviour, botBase);
