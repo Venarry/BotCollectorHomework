@@ -1,25 +1,19 @@
-public class BotResourcesCollectState : IState
+public class BotResourcesCollectState : BotComingState
 {
-    private readonly BotInteractHandler _interactHandler;
-    private readonly BotAIBehaviour _botBehaviour;
     private readonly StorageModel _botStorageModel;
     private readonly IStateSwitcher _stateSwitcher;
-
-    private ITarget _target;
 
     public BotResourcesCollectState(
         BotInteractHandler interactHandler,
         BotAIBehaviour botBehaviour,
         StorageModel botStorageModel,
-        IStateSwitcher stateSwitcher)
+        IStateSwitcher stateSwitcher) : base(interactHandler, botBehaviour)
     {
-        _interactHandler = interactHandler;
-        _botBehaviour = botBehaviour;
         _botStorageModel = botStorageModel;
         _stateSwitcher = stateSwitcher;
     }
 
-    public void SetTarget(ITarget target)
+    /*public void SetTarget(ITarget target)
     {
         if(_target != null)
         {
@@ -33,32 +27,17 @@ public class BotResourcesCollectState : IState
 
         _target.Destroyed += OnTargetDestroy;
         _interactHandler.Reached += OnTargetReach;
-    }
+    }*/
 
-    public void OnEnter()
+    protected override void OnTargetDestroy()
     {
-        
-    }
-
-    public void OnExit()
-    {
-        _interactHandler.ResourceCollected -= OnTargetReach;
-    }
-
-    public void OnUpdate()
-    {
-    }
-
-    private void OnTargetDestroy(ITarget _)
-    {
-        _target.Destroyed -= OnTargetDestroy;
         _stateSwitcher.Switch<BotBaseComingState>();
     }
 
-    private void OnTargetReach()
+    protected override void OnTargetReach()
     {
         _botStorageModel.Add();
-        _target.Destroy();
+        Target.Destroy();
         _stateSwitcher.Switch<BotBaseComingState>();
     }
 }

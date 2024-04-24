@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class BotBaseComingState : IState
@@ -18,9 +19,22 @@ public class BotBaseComingState : IState
 
     public void OnEnter()
     {
-        _interactHandler.SetState(BotInteractState.ToBase);
         _interactHandler.SetTarget(_botBase);
         _botBehaviour.SetDestination(_botBase.position);
+
+        _interactHandler.Reached += OnTargetReach;
+    }
+
+    private void OnTargetReach()
+    {
+        if (_storageModel.Count > 0)
+        {
+            baseStorageView.AddResources(_storageModel.Count);
+            _storageModel.TryRemove(_storageModel.Count);
+        }
+
+        baseStorageView.AddBots();
+        Destroy(gameObject);
     }
 
     public void OnExit()
@@ -29,5 +43,6 @@ public class BotBaseComingState : IState
 
     public void OnUpdate()
     {
+        
     }
 }
