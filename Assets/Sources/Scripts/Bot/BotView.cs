@@ -1,49 +1,42 @@
 using UnityEngine;
 
-[RequireComponent(typeof(StateMachine))]
+[RequireComponent(typeof(BotStateMachine))]
 [RequireComponent(typeof(BotInteractHandler))]
 [RequireComponent(typeof(BotAIBehaviour))]
 [RequireComponent(typeof(BotStorageView))]
 public class BotView : MonoBehaviour
 {
-    private StateMachine _stateMachine;
+    private BotStateMachine _stateMachine;
     private BotInteractHandler _interactHandler;
     private BotAIBehaviour _botAIBehaviour;
     private BotStorageView _botStorageView;
-    private BotResourcesCollectState _botResourcesCollectState;
-    //private BotBuil _botResourcesCollectState;
 
     private void Awake()
     {
-        _stateMachine = GetComponent<StateMachine>();
+        _stateMachine = GetComponent<BotStateMachine>();
         _interactHandler = GetComponent<BotInteractHandler>();
         _botAIBehaviour = GetComponent<BotAIBehaviour>();
         _botStorageView = GetComponent<BotStorageView>();
     }
 
-    public void Init(StorageModel storageModel, Transform botBase)
+    public void Init(
+        StorageModel storageModel,
+        ITarget botBase,
+        BaseStorageView baseStorageView,
+        BaseFactory baseFactory)
     {
         _interactHandler.Init(storageModel);
         _botStorageView.Init(storageModel);
-
-        _botResourcesCollectState = 
-            new(_interactHandler, _botAIBehaviour, storageModel, _stateMachine);
-
-        BotBaseComingState botBaseComingState =
-            new(_interactHandler, _botAIBehaviour, botBase);
-
-        _stateMachine.Register(_botResourcesCollectState);
-        _stateMachine.Register(botBaseComingState);
+        _stateMachine.Init(storageModel, botBase, baseStorageView, baseFactory, _interactHandler, _botAIBehaviour);
     }
 
     public void GoToResource(ITarget target)
     {
-        _botResourcesCollectState.SetTarget(target);
-        _stateMachine.Switch<BotResourcesCollectState>();
+        _stateMachine.GoToResource(target);
     }
 
     public void GoToFlag(ITarget target)
     {
-
+        _stateMachine.GoToFlag(target);
     }
 }

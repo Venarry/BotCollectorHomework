@@ -1,48 +1,74 @@
-using System;
 using UnityEngine;
 
 public class BotBaseComingState : IState
 {
     private readonly BotInteractHandler _interactHandler;
     private readonly BotAIBehaviour _botBehaviour;
-    private readonly Transform _botBase;
+    private readonly StorageModel _botStorageModel;
+    private readonly Transform _bot;
+    private ITarget _botBase;
+    private BaseStorageView _baseStorageView;
 
     public BotBaseComingState(
         BotInteractHandler interactHandler,
         BotAIBehaviour botBehaviour,
-        Transform botBase)
+        StorageModel botStorageModel,
+        ITarget botBase,
+        BaseStorageView baseStorageView,
+        Transform bot)
     {
         _interactHandler = interactHandler;
         _botBehaviour = botBehaviour;
+        _botStorageModel = botStorageModel;
+        _baseStorageView = baseStorageView;
         _botBase = botBase;
+        _bot = bot;
+    }
+
+    public void Change(ITarget botBase, BaseStorageView baseStorageView)
+    {
+        if(_botBase != null)
+        {
+            _botBase.Destroyed -= OnBaseDestroy;
+        }
+
+        _botBase = botBase;
+        _baseStorageView = baseStorageView;
+
+        _botBase.Destroyed += OnBaseDestroy;
+    }
+
+    private void OnBaseDestroy(ITarget obj)
+    {
+        _botBase.Destroyed -= OnBaseDestroy;
     }
 
     public void OnEnter()
     {
-        _interactHandler.SetTarget(_botBase);
-        _botBehaviour.SetDestination(_botBase.position);
+        _interactHandler.SetTarget(_botBase.Transform);
+        _botBehaviour.SetDestination(_botBase.Transform.position);
 
         _interactHandler.Reached += OnTargetReach;
     }
 
-    private void OnTargetReach()
-    {
-        if (_storageModel.Count > 0)
-        {
-            baseStorageView.AddResources(_storageModel.Count);
-            _storageModel.TryRemove(_storageModel.Count);
-        }
-
-        baseStorageView.AddBots();
-        Destroy(gameObject);
-    }
-
     public void OnExit()
     {
+        _interactHandler.Reached -= OnTargetReach;
     }
 
     public void OnUpdate()
     {
-        
+    }
+
+    private void OnTargetReach()
+    {
+        if (_botStorageModel.Count > 0)
+        {
+            _baseStorageView.AddResources(_botStorageModel.Count);
+            _botStorageModel.TryRemove(_botStorageModel.Count);
+        }
+
+        _baseStorageView.AddBots();
+        Object.Destroy(_bot.gameObject);
     }
 }

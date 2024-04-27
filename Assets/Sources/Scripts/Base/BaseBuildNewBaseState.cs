@@ -9,19 +9,22 @@ public class BaseBuildNewBaseState : IState
     private readonly StorageModel _botsStorageModel;
     private readonly StorageModel _resourcesStorageModel;
     private readonly ScannedResourcesProvider _scannedResourcesProvider;
+    private readonly IStateSwitcher _stateSwitcher;
 
     public BaseBuildNewBaseState(
         BaseBotsHandler baseBotsHandler,
         BaseFlagHandler flagHandler,
         StorageModel botsStorageModel,
         StorageModel resourcesStorageModel,
-        ScannedResourcesProvider scannedResourcesProvider)
+        ScannedResourcesProvider scannedResourcesProvider,
+        IStateSwitcher stateSwitcher)
     {
         _baseBotsHandler = baseBotsHandler;
         _flagHandler = flagHandler;
         _botsStorageModel = botsStorageModel;
         _resourcesStorageModel = resourcesStorageModel;
         _scannedResourcesProvider = scannedResourcesProvider;
+        _stateSwitcher = stateSwitcher;
     }
 
     public void OnEnter()
@@ -62,8 +65,11 @@ public class BaseBuildNewBaseState : IState
     {
         if(_resourcesStorageModel.Count >= ResourceForBuild)
         {
-            _baseBotsHandler
-                .TrySendBotToBuildBase(ResourceForBuild, _flagHandler.ActiveFlag);
+            if(_baseBotsHandler
+                .TrySendBotToBuildBase(ResourceForBuild, _flagHandler.ActiveFlag))
+            {
+                _stateSwitcher.Switch<BaseSpawnBotsState>();
+            }
 
             return true;
         }

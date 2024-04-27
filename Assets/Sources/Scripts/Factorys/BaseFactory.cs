@@ -3,12 +3,22 @@ using UnityEngine;
 public class BaseFactory
 {
     private readonly BaseView _prefab = Resources.Load<BaseView>(Path.Base);
+    private readonly ScannedResourcesProvider _scannedResourcesProvider;
+    private BotFactory _botFactory;
+
+    public BaseFactory(
+        ScannedResourcesProvider scannedResourcesProvider)
+    {
+        _scannedResourcesProvider = scannedResourcesProvider;
+    }
+
+    public void Init(BotFactory botFactory)
+    {
+        _botFactory = botFactory;
+    }
 
     public BaseView Create(
         Vector3 position,
-        IInputsProvider inputsProvider,
-        ResourcesPool resourcesPool,
-        BotFactory botFactory,
         int baseResourcesValue,
         int baseBotsCount)
     {
@@ -16,15 +26,12 @@ public class BaseFactory
 
         StorageModel resourcesStorageModel = new(baseResourcesValue);
         StorageModel botsStorageModel = new(baseBotsCount);
-        ScannedResourcesProvider resourcesProvider = new();
 
         baseView.Init(
-            inputsProvider,
-            resourcesPool,
-            resourcesProvider,
+            _scannedResourcesProvider,
             resourcesStorageModel,
             botsStorageModel,
-            botFactory);
+            _botFactory);
 
         return baseView;
     }

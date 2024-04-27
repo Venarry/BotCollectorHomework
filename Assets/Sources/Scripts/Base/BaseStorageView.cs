@@ -9,6 +9,9 @@ public class BaseStorageView : MonoBehaviour
     private StorageModel _resourcesStorageModel;
     private StorageModel _botsStorageModel;
 
+    public int ResourcesCount => _resourcesStorageModel.Count;
+    public int BotsCount => _botsStorageModel.Count;
+
     public void Init(
         StorageModel resourcesStorageModel,
         StorageModel botsStorageModel)
@@ -42,6 +45,12 @@ public class BaseStorageView : MonoBehaviour
     {
         _botsStorageModel.Add(count);
     }
+
+    public bool TryRemoveResource(int count = 1) => 
+        _resourcesStorageModel.TryRemove(count);
+
+    public bool TryRemoveBots(int count = 1) =>
+        _botsStorageModel.TryRemove(count);
 
     private void RefreshResourcesCount()
     {

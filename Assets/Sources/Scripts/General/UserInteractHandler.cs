@@ -30,14 +30,14 @@ public class UserInteractHandler : MonoBehaviour
         }
     }
 
-    public void PrepareToSpawnFlag(
+    public void PrepareToBuild(
         GameObject proectionPrefab,
-        Action<Vector3> action) //DoClickActionWithPosition
+        Action<Vector3> action)
     {
-        _activeCoroutine ??= StartCoroutine(SpawningFlag(proectionPrefab, action));
+        _activeCoroutine ??= StartCoroutine(Building(proectionPrefab, action));
     }
 
-    private IEnumerator SpawningFlag(GameObject proectionPrefab, Action<Vector3> action)
+    private IEnumerator Building(GameObject proectionPrefab, Action<Vector3> action)
     {
         GameObject proection = Instantiate(proectionPrefab);
         RaycastHit hit;

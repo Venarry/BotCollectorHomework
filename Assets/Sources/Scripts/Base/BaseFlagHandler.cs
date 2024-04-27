@@ -31,7 +31,7 @@ public class BaseFlagHandler
 
     public void RemoveFlag()
     {
-        Object.Destroy(ActiveFlag.gameObject);
+        ActiveFlag.Destroy();
         ActiveFlag = null;
     }
 }

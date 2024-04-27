@@ -1,6 +1,4 @@
-﻿using System;
-
-public abstract class BotComingState : IState
+﻿public abstract class BotComingState : IState
 {
     private readonly BotInteractHandler _interactHandler;
     private readonly BotAIBehaviour _botBehaviour;

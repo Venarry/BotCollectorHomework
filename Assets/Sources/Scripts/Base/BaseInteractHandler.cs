@@ -12,6 +12,6 @@ public class BaseInteractHandler : MonoBehaviour, IInteractable
     public void Interact(UserInteractHandler userInteractHandler)
     {
         userInteractHandler
-            .PrepareToSpawnFlag(_baseFlagHandler.ProectionPrefab, _baseFlagHandler.SpawnFlag);
+            .PrepareToBuild(_baseFlagHandler.ProectionPrefab, _baseFlagHandler.SpawnFlag);
     }
 }

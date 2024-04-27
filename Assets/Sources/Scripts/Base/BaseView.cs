@@ -1,31 +1,31 @@
+using System;
 using UnityEngine;
 
-[RequireComponent(typeof(BaseScannerView))]
 [RequireComponent(typeof(BaseStorageView))]
 [RequireComponent(typeof(StateMachine))]
 [RequireComponent(typeof(BaseInteractHandler))]
-public class BaseView : MonoBehaviour
+public class BaseView : MonoBehaviour, ITarget
 {
     [SerializeField] private Transform _botsSpawnPosition;
     [SerializeField] private BaseFlag _flagPrefab;
     [SerializeField] private GameObject _proectionPrefab;
 
-    private BaseScannerView _scannerView;
-    private BaseStorageView _storageView;
     private StateMachine _stateMachine;
     private BaseInteractHandler _interactHandler;
 
+    public event Action<ITarget> Destroyed;
+
+    public BaseStorageView StorageView { get; private set; }
+    public Transform Transform => transform;
+
     private void Awake()
     {
-        _scannerView = GetComponent<BaseScannerView>();
-        _storageView = GetComponent<BaseStorageView>();
+        StorageView = GetComponent<BaseStorageView>();
         _stateMachine = GetComponent<StateMachine>();
         _interactHandler = GetComponent<BaseInteractHandler>();
     }
 
     public void Init(
-        IInputsProvider inputsProvider,
-        ResourcesPool resourcesPool,
         ScannedResourcesProvider scannedResourceProvider,
         StorageModel resourcesStorageModel,
         StorageModel botsStorageModel,
@@ -33,26 +33,30 @@ public class BaseView : MonoBehaviour
     {
         BaseFlagHandler flagHandler = new(_flagPrefab, _proectionPrefab, _stateMachine);
         BaseBotsHandler baseBotsHandler = new(
-            transform,
+            this,
             _botsSpawnPosition,
-            botsStorageModel,
-            resourcesStorageModel,
+            StorageView,
             scannedResourceProvider,
             botFactory);
 
         _interactHandler.Init(flagHandler);
 
-        _scannerView.Init(inputsProvider, resourcesPool, scannedResourceProvider);
-        _storageView.Init(resourcesStorageModel, botsStorageModel);
+        StorageView.Init(resourcesStorageModel, botsStorageModel);
 
         BaseSpawnBotsState baseResourceCollectState = 
             new(baseBotsHandler, botsStorageModel, resourcesStorageModel, scannedResourceProvider);
 
         BaseBuildNewBaseState baseBuildNewBaseState =
-            new(baseBotsHandler, flagHandler, botsStorageModel, resourcesStorageModel, scannedResourceProvider);
+            new(baseBotsHandler, flagHandler, botsStorageModel, resourcesStorageModel, scannedResourceProvider, _stateMachine);
 
         _stateMachine.Register(baseResourceCollectState);
         _stateMachine.Register(baseBuildNewBaseState);
         _stateMachine.Switch<BaseSpawnBotsState>();
+    }
+
+    public void Destroy()
+    {
+        Destroyed?.Invoke(this);
+        Destroy(gameObject);
     }
 }

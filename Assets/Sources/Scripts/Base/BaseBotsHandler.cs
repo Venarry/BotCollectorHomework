@@ -3,38 +3,35 @@ using UnityEngine;
 
 public class BaseBotsHandler
 {
-    private readonly Transform _base;
+    private readonly ITarget _base;
     private readonly Transform _botsSpawnPoint;
-    private readonly StorageModel _botsStorageModel;
-    private readonly StorageModel _resourcesStorageModel;
+    private readonly BaseStorageView _baseStorageView;
     private readonly ScannedResourcesProvider _scannedResourcesProvider;
     private readonly BotFactory _botFactory;
 
     public BaseBotsHandler(
-        Transform thisBase,
+        ITarget thisBase,
         Transform botsSpawnPoint,
-        StorageModel botsStorageModel,
-        StorageModel resourcesStorageModel,
+        BaseStorageView baseStorageView,
         ScannedResourcesProvider scannedResourcesProvider,
         BotFactory botFactory)
     {
         _base = thisBase;
         _botsSpawnPoint = botsSpawnPoint;
-        _botsStorageModel = botsStorageModel;
-        _resourcesStorageModel = resourcesStorageModel;
+        _baseStorageView = baseStorageView;
         _scannedResourcesProvider = scannedResourcesProvider;
         _botFactory = botFactory;
     }
 
     public void AddNewBot()
     {
-        _botsStorageModel.Add();
+        _baseStorageView.AddBots();
     }
 
     public void TrySendBotsToResource()
     {
         int availableShipments = Math
-            .Min(_botsStorageModel.Count, _scannedResourcesProvider.CoalsCount);
+            .Min(_baseStorageView.BotsCount, _scannedResourcesProvider.CoalsCount);
 
         if (availableShipments == 0)
         {
@@ -43,24 +40,28 @@ public class BaseBotsHandler
 
         for (int i = 0; i < availableShipments; i++)
         {
-            _botsStorageModel.TryRemove();
+            _baseStorageView.TryRemoveBots();
             _scannedResourcesProvider.TryTake(out ITarget resource);
-            BotView bot = _botFactory.Create(_botsSpawnPoint.position, _base);
+            BotView bot = _botFactory.Create(_botsSpawnPoint.position, _base, _baseStorageView);
             bot.GoToResource(resource);
         }
     }
 
-    public void TrySendBotToBuildBase(int resourcesForBuild, ITarget flag)
+    public bool TrySendBotToBuildBase(int resourcesForBuild, ITarget flag)
     {
-        if (_resourcesStorageModel.Count >= resourcesForBuild &&
-            _botsStorageModel.Count > 0)
+        if (_baseStorageView.ResourcesCount >= resourcesForBuild &&
+            _baseStorageView.BotsCount > 0)
         {
-            _botsStorageModel.TryRemove();
-            _resourcesStorageModel.TryRemove(resourcesForBuild);
+            _baseStorageView.TryRemoveBots();
+            _baseStorageView.TryRemoveResource(resourcesForBuild);
 
             BotView bot = _botFactory
-                .Create(_botsSpawnPoint.position, _base, startResources: resourcesForBuild);
+                .Create(_botsSpawnPoint.position, _base, _baseStorageView, startResources: resourcesForBuild);
             bot.GoToFlag(flag);
+
+            return true;
         }
+
+        return false;
     }
 }

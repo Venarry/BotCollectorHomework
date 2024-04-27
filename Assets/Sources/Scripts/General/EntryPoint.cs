@@ -6,20 +6,24 @@ public class EntryPoint : MonoBehaviour
     [SerializeField] private Camera _camera;
     [SerializeField] private UserInteractHandler _userInteractHandler;
     [SerializeField] private PanelClickHandler _panelClickHandler;
+    [SerializeField] private BaseScannerView _scannerView;
 
     private void Awake()
     {
-        ResourcesPool resourcesPool = new();
-        BaseFactory baseFactory = new();
-        BotFactory botFactory = new();
-        CoalFactory coalFactory = new();
         IInputsProvider inputsProvider = new KeyboardInputsProvider();
+        ResourcesPool resourcesPool = new();
+        ScannedResourcesProvider scannedResourcesProvider = new();
+
+        BotFactory botFactory = new();
+        BaseFactory baseFactory = new(scannedResourcesProvider);
+        CoalFactory coalFactory = new();
+
+        botFactory.Init(baseFactory);
+        baseFactory.Init(botFactory);
+        _scannerView.Init(inputsProvider, resourcesPool, scannedResourcesProvider);
 
         baseFactory.Create(
             Vector3.zero,
-            inputsProvider,
-            resourcesPool,
-            botFactory,
             baseResourcesValue: 0,
             baseBotsCount: 3);
 
